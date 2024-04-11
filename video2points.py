@@ -46,90 +46,68 @@ for idx, result in enumerate(results):
     green = img[:, :, 1]
     red = img[:, :, 2]
     gray_blur = cv2.GaussianBlur(gray, (51, 51), 0) # blur
-    # gray_blur = 255 * ((gray_blur - gray_blur.min()) / (gray_blur.max() - gray_blur.min())).astype(np.uint8) # span histogram
-    # cv2.imshow("gray", gray_blur)
-    # _, binary_image = cv2.threshold(gray_blur, 1, 255, cv2.THRESH_BINARY)
+    print(gray_blur.max(), gray_blur.min())
+    gray_blur = (255 * ((gray_blur - gray_blur.min()) / (gray_blur.max() - gray_blur.min()))).astype(np.uint8) # span histogram
+    # print(gray_blur)
+    cv2.imshow("gray", gray_blur)
 
-    # # Apply a dilation operation to fill the areas surrounded by black
-    # kernel = np.ones((3, 3), np.uint8)
-    # dilated_image = cv2.dilate(binary_image, kernel, iterations=0)
-
-    # # Get the result by masking the dilated image with the original grayscale image
-    # result = cv2.bitwise_and(gray_blur, dilated_image)
-    # cv2.imshow("black filter", result)
     blue_blur = cv2.GaussianBlur(blue, (35, 35), 0) # blur
     green_blur = cv2.GaussianBlur(green, (35, 35), 0) # blur
     red_blur = cv2.GaussianBlur(red, (35, 35), 0) # blur
 
-
     # cv2.imshow("gray", gray_blur)
-    # horiz_edge_kernel_bottom = np.array([[-0.2, -0.2, -0.2, -0.2, -0.2, -0.2, -0.2, -0.2, -0.2, -0.2, -0.2, -0.2, -0.2, -0.2], 
-    #                               [-0.2, -0.2, -0.2, -0.2, -0.2, -0.2, -0.2, -0.2, -0.2, -0.2, -0.2, -0.2, -0.2, -0.2], 
-    #                               [-0.2, -0.2, -0.2, -0.2, -0.2, -0.2, -0.2, -0.2, -0.2, -0.2, -0.2, -0.2, -0.2, -0.2],
-    #                               [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], 
-    #                               [0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2], 
-    #                               [0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2], 
-    #                               [0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2]])
-    horiz_edge_kernel_top = np.array([[0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2],
+    gray_bottom_edge_kernel = np.array([
+                                  [-0.2, -0.2, -0.2, -0.2, -0.2, -0.2, -0.2, -0.2, -0.2, -0.2, -0.2, -0.2, -0.2, -0.2], 
+                                  [-0.2, -0.2, -0.2, -0.2, -0.2, -0.2, -0.2, -0.2, -0.2, -0.2, -0.2, -0.2, -0.2, -0.2], 
+                                  [-0.2, -0.2, -0.2, -0.2, -0.2, -0.2, -0.2, -0.2, -0.2, -0.2, -0.2, -0.2, -0.2, -0.2],
+                                  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                                  [0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2],
+                                      [0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2], 
+                                      [0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2]])
+
+    bottom_edge_kernel = np.array([[0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2],
                                       [0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2], 
                                       [0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2],
                                   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                                   [-0.2, -0.2, -0.2, -0.2, -0.2, -0.2, -0.2, -0.2, -0.2, -0.2, -0.2, -0.2, -0.2, -0.2], 
                                   [-0.2, -0.2, -0.2, -0.2, -0.2, -0.2, -0.2, -0.2, -0.2, -0.2, -0.2, -0.2, -0.2, -0.2], 
                                   [-0.2, -0.2, -0.2, -0.2, -0.2, -0.2, -0.2, -0.2, -0.2, -0.2, -0.2, -0.2, -0.2, -0.2]])
-    # edges_bottom = cv2.filter2D(gray_blur,-1,horiz_edge_kernel_bottom) # first set of edge detection
-    edges_top = cv2.filter2D(gray_blur,-1,horiz_edge_kernel_top) # first set of edge detection
+    gy_edges = cv2.filter2D(gray_blur,-1,gray_bottom_edge_kernel)
+    bl_edges = cv2.filter2D(blue_blur,-1,bottom_edge_kernel)
+    gn_edges = cv2.filter2D(green_blur,-1,bottom_edge_kernel)
+    rd_edges = cv2.filter2D(red_blur,-1,bottom_edge_kernel) # first set of edge detection
 
-    # b_edges_bottom = cv2.filter2D(blue_blur,-1,horiz_edge_kernel_bottom) # first set of edge detection
-    b_edges_top = cv2.filter2D(blue_blur,-1,horiz_edge_kernel_top) # first set of edge detection
-
-    # g_edges_bottom = cv2.filter2D(green_blur,-1,horiz_edge_kernel_bottom) # first set of edge detection
-    g_edges_top = cv2.filter2D(green_blur,-1,horiz_edge_kernel_top) # first set of edge detection
-
-    # r_edges_bottom = cv2.filter2D(red_blur,-1,horiz_edge_kernel_bottom) # first set of edge detection
-    r_edges_top = cv2.filter2D(red_blur,-1,horiz_edge_kernel_top) # first set of edge detection
-
-    # cv2.imshow("edgestop", edges_top)
-    # cv2.imshow("edgesbot", edges_bottom)
-    gray_edges = edges_bottom + edges_top
-    blue_edges = b_edges_bottom + b_edges_top
-    green_edges = g_edges_bottom + g_edges_top
-    red_edges = r_edges_bottom + r_edges_top
-    # cv2.imshow("gray edges", gray_edges)
-    # cv2.imshow("blue edges", blue_edges)
-    # cv2.imshow("green edges", green_edges)
-    # cv2.imshow("red edges", red_edges)
-    max_edges = np.maximum.reduce([gray_edges, blue_edges, green_edges, red_edges])
-    max_top_edges = np.maximum.reduce([edges_top, b_edges_top, g_edges_top, r_edges_top])
-    max_bottom_edges = np.maximum.reduce([edges_bottom, b_edges_bottom, g_edges_bottom, r_edges_bottom])
-
+    cv2.imshow("gray edges", gy_edges)
+    # cv2.imshow("blue edges", bl_edges)
+    # cv2.imshow("green edges", gn_edges)
+    # cv2.imshow("red edges", rd_edges)
+    max_edges = np.maximum.reduce([gy_edges, bl_edges, gn_edges, rd_edges])
     # cv2.imshow("max edges", max_edges)
-    mean = np.mean(max_edges[max_edges > 80])
-    mean_top = np.mean(max_top_edges[max_top_edges > 80])
-    mean_bottom = np.mean(max_bottom_edges[max_bottom_edges > 80])
-    # print(mean)
+
+    mean = np.mean(max_edges[max_edges > 80]) # mean is around 171 to start
     edges = (max_edges>=mean).astype(np.uint8) * 255 # thresholding/segmenting
-    top_edges = (max_top_edges>=mean_top).astype(np.uint8) * 255 # thresholding/segmenting
-    bottom_edges = (max_bottom_edges>=mean_bottom).astype(np.uint8) * 255 # thresholding/segmenting
-    cv2.imshow("edges", edges)
-    cv2.imshow("top_edges", top_edges)
-    cv2.imshow("bottom_edges", bottom_edges)
+    # cv2.imshow("edges", edges)
 
-    # edges = (all_edges>=150).astype(np.uint8) * 255 # thresholding/segmenting
-    # cv2.imshow("edges2", edges)
-    # edges = cv2.filter2D(edges,-1,horiz_edge_kernel_bottom) # second set of edge detection
-    # cv2.imshow("edges3", edges)
+    edges = cv2.filter2D(edges,-1,bottom_edge_kernel) # second set of edge detection
+    cv2.imshow("edges3", edges)
 
 
-    lines = lines = np.array([])
+    lines = np.array([])
     linesDetected = False
 
-    try:
-        lines = cv2.HoughLines(edges, 1, np.pi/180, 500, min_theta=1.48353, max_theta=1.65806)
-        if len(lines) > 0: # error thrown if null
-            pass
-    except:
-        lines = np.array([])
+    thresholds_to_try = [1000, 950, 900, 850, 800, 750, 700, 600, 500, 400, 300, 200, 100]
+    thresh_idx = 0
+
+    while thresh_idx < 10:
+        try:
+            lines = cv2.HoughLines(edges, 1, np.pi/180, thresholds_to_try[thresh_idx], min_theta=1.48353, max_theta=1.65806) # can't be more than 5 degrees of horizontal
+            if len(lines) > 0: # lines have been found
+                break
+        except:
+            lines = np.array([])
+        thresh_idx += 1
+
+    print(thresholds_to_try[thresh_idx])
 
     good_lines = []
     if lines.any():
@@ -139,52 +117,13 @@ for idx, result in enumerate(results):
             x0 = np.cos(theta)*r
             y0 = np.sin(theta)*r	
 
-            too_low = 0.45388889
-            top_third = 0.35759259259
+            x1 = int(x0 + 1000 * (-np.sin(theta))) 
+            y1 = int(y0 + 1000 * (np.cos(theta)))
 
-            max_expected_bounds = 30000 # 1000
-            ninety_deg = 1.5708
-            one_deg = 0.0174533
+            x2 = int(x0 - 1000 * (-np.sin(theta))) 
+            y2 = int(y0 - 1000 * ( np.cos(theta)))
 
-            x_bottom = (y0 - (top_third) * img_height)/np.cos(theta) # where line intersects line (y=top_third)
-            goal = (x0 - x_bottom) # where x should be set to have endpoint at x_bottom
-
-            if theta < 1.5708: # right side
-            
-                x1 = int(x0 + goal * (-np.sin(theta))) 
-                y1 = int(y0 + goal * (np.cos(theta)))
-
-                x2 = int(x0 - 1000 * (-np.sin(theta))) 
-                y2 = int(y0 - 1000 * ( np.cos(theta)))
-
-                # print_info(r, theta, x0, y0, x_bottom, goal, x1, y1, x2, y2, img_width)
-                if abs(x1) > max_expected_bounds: # "flat"
-                    x1 = int(x0 + 1000 * (-np.sin(theta))) 
-                    y1 = int(y0 + 1000 * (np.cos(theta)))
-                else:
-                    # print_info(r, theta, x0, y0, x_bottom, goal, x1, y1, x2, y2, img_width)
-                    pass
-
-            elif theta > 1.5708: # left side
-
-                x1 = int(x0 - 1000 * (-np.sin(theta))) 
-                y1 = int(y0 - 1000 * (np.cos(theta)))
-
-                x2 = int(x0 + goal * (-np.sin(theta))) 
-                y2 = int(y0 + goal * ( np.cos(theta)))
-                
-                if abs(x2-img_width) > max_expected_bounds: # outside expected bounds
-                    # print_info(r, theta, x0, y0, x_bottom, goal, x1, y1, x2, y2, img_width)			
-                    if abs(theta - ninety_deg) < flat_cutoff: # means its flat, so if there are other curved, take those, else take flat
-                        continue
-                    x2 = int(x0 - 1000 * (-np.sin(theta))) 
-                    y2 = int(y0 - 1000 * (np.cos(theta)))
-                else:
-                    # print_info(r, theta, x0, y0, x_bottom, goal, x1, y1, x2, y2, img_width)	
-                    pass
-
-            if y1 > too_low * img_height or y2 > too_low * img_height:
-                continue
+            good_lines.append((x1, y1, x2, y2))
     else:
         lines = []
     
