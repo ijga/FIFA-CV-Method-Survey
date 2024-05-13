@@ -29,6 +29,7 @@ for idx, result in enumerate(results):
     boxes = result.boxes.xywh.numpy()[:, :2] 
     boxes[:, 1] += (result.boxes.xywh.numpy()[:, 3] * 0.5)
     boxes = boxes.reshape(1, -1, 2)
+    print(boxes)
 
     classes = result.boxes.cls.numpy()
     confidence = result.boxes.conf.numpy()

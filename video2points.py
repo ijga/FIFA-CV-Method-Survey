@@ -130,7 +130,7 @@ for idx, result in enumerate(results):
                                     [-0.2, -0.2, -0.2, -0.2, -0.2, -0.2, -0.2, -0.2, -0.2], 
                                     [-0.2, -0.2, -0.2, -0.2, -0.2, -0.2, -0.2, -0.2, -0.2]])
     edges = cv2.filter2D(edges,-1, thinning_edge_kernel) # second set of edge detection to narrow lines
-    cv2.imshow("edges3", edges)
+    # cv2.imshow("edges3", edges)
 
     lines = np.array([])
     linesDetected = False

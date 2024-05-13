@@ -33,8 +33,7 @@ dst = np.array([870, 150, # tl
 #                 1853, 741, # br
 # ]).reshape((4, 2))
 
-# # Plot the points on the image with red color
-plt.scatter(dst[:, 0], dst[:, 1], color='red', marker='o')
+
 
 # # right_end
 # dst = np.array([1500, 230, # tl
@@ -104,6 +103,8 @@ ax.imshow(tf_img)
 _ = ax.set_title('projective transformation')
 
 plt.imshow(tf_img)
+# # Plot the points on the image with red color
+plt.scatter(dst[:, 0], dst[:, 1], color='red', marker='o')
 plt.show()
 
 
