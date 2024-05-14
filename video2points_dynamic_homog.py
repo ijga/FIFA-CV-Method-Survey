@@ -3,6 +3,7 @@ import numpy as np
 import cv2
 from skimage.io import imread, imshow
 import matplotlib.pyplot as plt
+import time
 
 model = YOLO('models/best.pt')
 np.set_printoptions(threshold = np.inf)
@@ -84,7 +85,14 @@ def calcHomog(theta):
 
 last_theta = 0
 
+endem = time.perf_counter()
+
 for idx, result in enumerate(results):
+
+    start = time.perf_counter()
+    print(f'across: {(start - endem) * 1000}')
+    
+
     img = result.orig_img
     img_height, img_width = result.orig_shape
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
@@ -189,6 +197,7 @@ for idx, result in enumerate(results):
     confidence = result.boxes.conf.numpy()
     
     points = np.array([])
+    theta = 1.5707964897155762
     try:
         homog = calcHomog(theta)
         points = cv2.perspectiveTransform(boxes, homog)
@@ -197,24 +206,32 @@ for idx, result in enumerate(results):
     except:
         points = np.array([])
 
-    img = np.ones((720, 1280, 3), dtype=np.uint8)  # Assuming 1280x720 resolution
+
+
+    end = time.perf_counter()
+    print(f'within: {(end-start)*1000}')
+    endem = end
+
+
+
+    # img = np.ones((720, 1280, 3), dtype=np.uint8)  # Assuming 1280x720 resolution
     # img = np.ones((1080, 1920, 3), dtype=np.uint8)  # 1080p
-    img = 200 * img
-    if len(points) > 0:
-        for type, point in zip(classes, points[0, :, :]):
-            if type == 7 or type == 9:
-                 file1.write(f'{type} + ({point[0]}, {point[1]})\n')
+    # img = 200 * img
+    # if len(points) > 0:
+    #     for type, point in zip(classes, points[0, :, :]):
+    #         if type == 7 or type == 9:
+    #              file1.write(f'{type} + ({point[0]}, {point[1]})\n')
 
-            if type == 7:
-                cv2.circle(img, (int(point[0]), int(point[1])), 3, (255, 0, 0), -1)  # Draw a red circle at each point
-            elif type == 9:
-                cv2.circle(img, (int(point[0]), int(point[1])), 3, (0, 0, 255), -1)  # Draw a red circle at each point
-            else:
-                cv2.circle(img, (int(point[0]), int(point[1])), 3, (0, 255, 0), -1)  # Draw a red circle at each point
+    #         if type == 7:
+    #             cv2.circle(img, (int(point[0]), int(point[1])), 3, (255, 0, 0), -1)  # Draw a red circle at each point
+    #         elif type == 9:
+    #             cv2.circle(img, (int(point[0]), int(point[1])), 3, (0, 0, 255), -1)  # Draw a red circle at each point
+    #         else:
+    #             cv2.circle(img, (int(point[0]), int(point[1])), 3, (0, 255, 0), -1)  # Draw a red circle at each point
 
-    cv2.imshow('game items', img)
+    # cv2.imshow('game items', img)
     # cv2.waitKey(0)
 
-    file1.write(f'\n')
+    # file1.write(f'\n')
 
 file1.close()

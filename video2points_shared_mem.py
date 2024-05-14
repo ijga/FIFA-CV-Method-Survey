@@ -4,10 +4,12 @@ import numpy as np
 from PIL import Image
 from ultralytics import YOLO
 import time
-import torch.multiprocessing as mp
+import multiprocessing as mp
+import multiprocessing.shared_memory as sm
 import torch
 import queue
 import os
+import array
 
 class SlicedImage:
     def __init__(self, image, starting_pixel):
@@ -106,12 +108,23 @@ def slice_image(
     return sliced_image_result
 
 
-def process_tile(in_queue, out_queue, slice_box):
+def process_tile(buf, in_queue, out_queue, slice_box):
+
     model = YOLO('models/best7_coop.pt')
 
     while True:
         try:
             sliced_image = in_queue.get()
+            tlx, tly, brx, bry = slice_box
+
+            image_pil_arr = np.ndarray((1920, 1080, 3), dtype=np.uint8, buffer=buf)
+            # get shared image
+            image_pil_slice = image_pil_arr[tly:bry, tlx:brx]
+
+            start_x, start_y = slice_box[0], slice_box[1]
+
+            if sliced_image is None:
+                continue
 
             start_frame_time = time.perf_counter()
             process_id = os.getpid()
@@ -122,7 +135,6 @@ def process_tile(in_queue, out_queue, slice_box):
 
             window = sliced_image['image']
             # start_x, start_y = sliced_image['starting_pixel']
-            start_x, start_y = sliced_image['starting_pixel']
 
             results = model.predict(window, conf=0.7)
 
@@ -165,6 +177,7 @@ def process_tile(in_queue, out_queue, slice_box):
         else:
             print("task" + ' is done by ' + mp.current_process().name)
             out_queue.put({"bboxes": bboxes, "confs": confs, "class_id": class_id, "core": process_id, "time": execution_time})
+            time.sleep(.1)
     
     return True
 
@@ -182,10 +195,13 @@ def parallel_predict_tiling(cap, frequency=40, height_fraction=3, width_fraction
     in_queue = mp.Queue()
     out_queue = mp.Queue(maxsize=8)
 
+    shm = sm.SharedMemory(name='img', create=True, size=6220800)
+    buffer = shm.buf
+
     processes = []
     slice_bboxes = [[0, 0, 540, 640], [486, 0, 1026, 640], [972, 0, 1512, 640], [1380, 0, 1920, 640], [0, 440, 540, 1080], [486, 440, 1026, 1080], [972, 440, 1512, 1080], [1380, 440, 1920, 1080]]
     for w in range(num_processes):
-        p = mp.Process(target=process_tile, args=(in_queue, out_queue, slice_bboxes[w]))
+        p = mp.Process(target=process_tile, args=(buffer, in_queue, out_queue, slice_bboxes[w]))
         p.Daemon = True
         processes.append(p)
         p.start()
@@ -203,18 +219,21 @@ def parallel_predict_tiling(cap, frequency=40, height_fraction=3, width_fraction
         start_time = time.perf_counter()
         
         image = Image.fromarray(frame)
+        image_pil_arr = np.asarray(image)
+        buffer[:6220800] = bytearray(image_pil_arr.flatten())
 
-        # image_pil_arr = np.asarray(image) # share this across all threads
-
-        slice_image_result = slice_image(
-            image=image,
-        )
+        # slice_image_result = slice_image(
+        #         image=image,
+        #     )
         
         print("start pooling")
         start_pool= time.perf_counter()
 
-        for tile in slice_image_result:
-            in_queue.put(tile)
+        for i in range(num_processes):
+            in_queue.put("execute")
+
+        for i in range(num_processes):
+            in_queue.put(None)
 
         while not out_queue.full():
             pass
@@ -222,8 +241,6 @@ def parallel_predict_tiling(cap, frequency=40, height_fraction=3, width_fraction
         bboxes = []
         confs = []
         class_ids = []
-
-        print("\nQUEUE FULL\n")
 
         while not out_queue.empty():
             intermediate = out_queue.get()
@@ -257,6 +274,9 @@ def parallel_predict_tiling(cap, frequency=40, height_fraction=3, width_fraction
             "fps": fps,
             "frame": frame
         }
+
+    shm.close()
+    shm.unlink() 
 
 """finds middle of the bottom of the bounding box, used as the point where the object is located (besides goals)"""
 def find_bottom(xyxy):

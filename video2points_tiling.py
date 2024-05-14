@@ -20,6 +20,8 @@ def run():
     Hs = np.array([[ 5.94007434e-01,  1.18369697e+00,  3.77156029e+02],
                 [-1.29464862e-15,  2.22727388e+00, -1.82615885e+02],
                 [-7.25486452e-19,  1.24457088e-03,  1.00000000e+00]])
+    
+    # results = model("videos/coop/game1.mov", imgsz=1920, show=True)
 
     cap = cv2.VideoCapture("videos/coop/game1.mov")
 
@@ -29,7 +31,7 @@ def run():
     # Define the codec and create VideoWriter object
     out = cv2.VideoWriter('output.mp4', cv2.VideoWriter_fourcc(*'mp4v'), 30, (frame_width, frame_height))
 
-    results = predict_tiling(cap, 10)
+    results = parallel_predict_tiling(cap, 10)
 
     for idx, result in enumerate(results):
         
@@ -166,9 +168,9 @@ def run():
                     cv2.circle(img, (int(point[0]), int(point[1])), 3, (0, 255, 0), -1)  # Draw a green circle at each point
                 
                 idx += 1
-            # graph.add_edges(4)
+            graph.add_edges(4)
             # graph.visualize_graph()
-            # cv2.imshow('game items', img)
+            cv2.imshow('game items', img)
 
         # Write the frame into the file 'output.mp4'
         out.write(frame)

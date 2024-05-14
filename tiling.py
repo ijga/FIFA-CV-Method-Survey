@@ -219,16 +219,16 @@ def predict_tiling(cap, frequency=40, height_fraction=3, width_fraction=2):
         confs = []
         class_ids = []
 
-        print("start pooling")
+        # print("start pooling")
         start_pool= time.perf_counter()
 
         for i, image_slice in enumerate(slice_image_result):
-            print("size: ", sys.getsizeof(image_slice))
+            # print("size: ", sys.getsizeof(image_slice))
             # print(image_slice)
             window = image_slice['image']
-            print(sys.getsizeof(window))
-            print(len(window))
-            print(len(window[0]))
+            # print(sys.getsizeof(window))
+            # print(len(window))
+            # print(len(window[0]))
             start_x, start_y = image_slice['starting_pixel']
 
             results = model.predict(window, conf=0.7)
@@ -262,12 +262,12 @@ def predict_tiling(cap, frequency=40, height_fraction=3, width_fraction=2):
                     class_ids.append(class_id[i])
 
                 end_pool = time.perf_counter()
-                print("single Time:", end_pool - start_pool)
+        #         print("single Time:", end_pool - start_pool)
 
-        print("end pooling")
+        # print("end pooling")
 
         end_pool = time.perf_counter()
-        print("pooling Time:", end_pool - start_pool)
+        # print("pooling Time:", end_pool - start_pool)
 
 
         end_time = time.perf_counter()
