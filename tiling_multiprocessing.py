@@ -231,11 +231,11 @@ def parallel_predict_tiling(cap, frequency=40, height_fraction=3, width_fraction
             confs.extend(intermediate["confs"])
             class_ids.extend(intermediate["class_id"])
 
-        print({
-            "bboxes": bboxes,
-            "confs": confs,
-            "class_ids": class_ids,
-        })
+        # print({
+        #     "bboxes": bboxes,
+        #     "confs": confs,
+        #     "class_ids": class_ids,
+        # })
 
         print("end pooling")
 

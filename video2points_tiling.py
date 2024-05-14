@@ -169,7 +169,7 @@ def run():
                 
                 idx += 1
             graph.add_edges(4)
-            # graph.visualize_graph()
+            graph.visualize_graph()
             cv2.imshow('game items', img)
 
         # Write the frame into the file 'output.mp4'
