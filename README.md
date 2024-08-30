@@ -10,3 +10,5 @@ Download and view the "demo.mov" file to view a demo of the computer vision pipe
 My final presentation can be viewed at "506 Final Project.pdf" or "506 Final Project.pptx"
 
 My final project write up can be found at "Final Report.pdf"
+
+My midterm report can be found at "Midterm Report.pdf"
